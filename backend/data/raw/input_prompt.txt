@@ -23,6 +23,7 @@ Filtering rules:
 - Otherwise, always default anime = false unless the user asks for general animated content in which case do not set anime
 - Try to set "type" = "movie" or "tv" depending on if the user says "movie", "film", "show", "series", or anything similar.
 - If the user is vague, you may leave the "type" filter empty, but try to set it if you are confident.
+- If the user asks for anime in general, you should leave the type filter empty so it can include anime tv shows and movies
 
 Final Output:
 
@@ -42,7 +43,7 @@ Response:
     "query": "sad emotional anime series",
     "filters": {
         "anime": true,
-        "type": "movie"
+        "type": "tv"
     }
 }
 
