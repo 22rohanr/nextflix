@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: nextflix-api
+    runtime: python
+    plan: free
+    buildCommand: ""
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: PINECONE_API_KEY
+        sync: false
