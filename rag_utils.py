@@ -1,0 +1,137 @@
+import json
+import os
+import openai
+from dotenv import load_dotenv
+from vectorize_data import connect_pinecone, embed_texts
+load_dotenv()
+
+
+def call_groq_llm(user_query):
+    client = openai.OpenAI(
+        api_key=os.getenv("GROQ_API_KEY"),
+        base_url="https://api.groq.com/openai/v1"
+    )
+
+    system_prompt = """
+                    You are helping refine user search queries for a media recommendation engine backed by a vector database.
+
+                    The database contains short 2–4 sentence summaries for each movie, TV show, or anime. Each summary includes:
+                    - Title and year
+                    - General plot
+                    - Sometimes main characters, director, and composer
+                    - Genres
+                    - Language
+
+                    Your task:
+
+                    - Keep the user's intent and sentiment exactly the same.
+                    - Lightly rephrase the query only to make it better suited for searching 2–4 sentence plot summaries and correct typos.
+                    - Do not invent new plot details, characters, or events that were not in the original query.
+                    - Do not expand or heavily modify genres (e.g., "sci-fi" is fine, do not change it to "science fiction" unless absolutely necessary).
+                    - If the user gives a vague or emotional query that doesn't seem ideal for the databse (e.g., "a sad anime movie that will make me cry"), you can lightly clean it (e.g., "sad emotional anime movie"), but do not add new meanings.
+                    - The database only knows basic summary-level facts — assume shallow knowledge.
+
+                    Filtering rules:
+
+                    - Always try to infer "anime" and "type" when reasonable.
+                    - Set anime = true only if the user explicitly asks for anime
+                    - Otherwise, always default anime = false unless the user asks for general animated content in which case do not set anime
+                    - Try to set "type" = "movie" or "tv" depending on if the user says "movie", "film", "show", "series", or anything similar.
+                    - If the user is vague, you may leave the "type" filter empty, but try to set it if you are confident.
+
+                    Final Output:
+
+                    Return a strict JSON object in this format:
+
+                    {
+                        "query": "refined query here",
+                        "filters": { optional filters here }
+                    }
+
+                    Examples:
+
+                    Example 1:
+                    User: "Please give me a sad anime series that will make me cry"
+                    Response:
+                    {
+                        "query": "sad emotional anime series",
+                        "filters": {
+                            "anime": true,
+                            "type": "movie"
+                        }
+                    }
+
+                    Example 2:
+                    User: "Recommend a highly rated TV show from America"
+                    Response:
+                    {
+                        "query": "highly rated American television show",
+                        "filters": {
+                            "anime": false,
+                            "type": "tv"
+                        }
+                    }
+
+                    Example 3:
+                    User: "funny animated movies"
+                    Response:
+                    {
+                    "query": "funny animated movies",
+                        "filters": {
+                            "type": "movie",
+                        }
+                    }
+
+                    Example 4:
+                    User: "Give me Christopher Nolan mvoies with Christian Bale"
+                    Response:
+                    {
+                    "query": "Movies directed by Christopher Nolan starring Christian Bale",
+                        "filters": {
+                            "anime": false,
+                            "type": "movie"
+                        }
+                    }
+
+                    Rules:
+
+                    - Never explain your reasoning.
+                    - Never output anything except the valid JSON, as this output will be used verbatim in my code that expects a JSON.
+                    """
+
+    response = client.chat.completions.create(
+        model="llama3-70b-8192",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_query}
+        ],
+        temperature=0.3
+    )
+
+    return response.choices[0].message.content
+
+def search_pinecone(user_query):
+    pc, index = connect_pinecone()
+
+    llm_response = call_groq_llm(user_query)
+    llm_response = json.loads(llm_response)
+    print(llm_response)
+    embedded_query = embed_texts(pc, [llm_response["query"]], "query")[0]['values']
+
+    filter_metadata = llm_response.get("filters", {})
+    
+    results = index.query(
+        vector=embedded_query,
+        filter=filter_metadata,
+        top_k=10,
+        include_metadata=True
+    )
+
+    return results
+
+if __name__ == "__main__":
+    user_query = input("Enter your search query: ")
+    search_results = search_pinecone(user_query)
+
+    for match in search_results["matches"]:
+        print(f"{match['metadata']['title']} - Score: {match['score']:.3f}")
