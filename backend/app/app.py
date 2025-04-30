@@ -50,8 +50,6 @@ async def recommend(request: QueryRequest, x_api_key: str = Header(None)):
             timeout_wrapper(),
             media_type="text/plain"
         )
-    except HTTPException:
-        raise
     except Exception as e:
         raise HTTPException(
             status_code=500,
