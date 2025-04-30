@@ -43,6 +43,7 @@ async def call_groq_llm_stream(user_query, prompt, temperature):
             yield content
 
 async def search_pinecone_stream(user_query: str):
+    yield "DEBUG: Generator started\n"
     try:
         pc, index = await asyncio.to_thread(connect_pinecone)
         input_llm_response = await asyncio.to_thread(

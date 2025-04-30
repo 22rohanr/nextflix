@@ -32,24 +32,28 @@ async def recommend(request: QueryRequest, x_api_key: str = Header(None)):
             status_code=401,
             detail="Unauthorized access. A valid API key is required."
         )
+    async def timeout_wrapper():
+        gen = search_pinecone_stream(request.user_query)
+        try:
+            while True:
+                chunk = await asyncio.wait_for(gen.__anext__(), timeout=60)
+                yield chunk
+        except StopAsyncIteration:
+            return
+        except asyncio.TimeoutError:
+            raise HTTPException(
+                status_code=504,
+                detail="Request timed out after 60 seconds."
+            )
     try:
-        async def timeout_wrapper():
-            gen = search_pinecone_stream(request.user_query)
-            try:
-                async for chunk in asyncio.wait_for(gen, timeout=60):
-                    yield chunk
-            except asyncio.TimeoutError:
-                raise HTTPException(
-                    status_code=504,
-                    detail="Sorry, request timed out after 60 seconds."
-                )
-
         return StreamingResponse(
             timeout_wrapper(),
             media_type="text/plain"
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Sorry, something went wrong while processing your query."
+            detail=f"Sorry, something went wrong while processing your query: {str(e)}"
         )
