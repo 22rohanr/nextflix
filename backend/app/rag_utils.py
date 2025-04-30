@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from backend.app.config import connect_pinecone
 import asyncio
 
-from openai import AsyncOpenAI  # Make sure openai>=1.0.0
+from openai import AsyncOpenAI
 
 load_dotenv()
 
