@@ -36,7 +36,7 @@ async def recommend(request: QueryRequest, x_api_key: str = Header(None)):
         gen = search_pinecone_stream(request.user_query)
         try:
             while True:
-                chunk = await asyncio.wait_for(gen.__anext__(), timeout=60)
+                chunk = await asyncio.wait_for(gen.__anext__(), timeout=75)
                 yield chunk
         except StopAsyncIteration:
             return
@@ -53,5 +53,5 @@ async def recommend(request: QueryRequest, x_api_key: str = Header(None)):
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Sorry, something went wrong while processing your query: {str(e)}"
+            detail=f"Sorry, something went wrong while processing your query."
         )

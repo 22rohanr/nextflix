@@ -1,6 +1,7 @@
 import json
 import os
 from dotenv import load_dotenv
+from fastapi import HTTPException
 from backend.app.config import connect_pinecone
 import asyncio
 from openai import AsyncOpenAI
@@ -68,7 +69,7 @@ async def search_pinecone_stream(user_query: str):
             yield chunk
 
     except Exception as e:
-        yield f"\n[ERROR]: {str(e)}"
+        raise HTTPException(status_code=500, detail=str(e))
 
 def call_groq_llm(user_query, prompt, temperature):
     import openai
