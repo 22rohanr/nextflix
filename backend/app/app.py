@@ -1,10 +1,11 @@
-from fastapi import FastAPI, HTTPException, Request, Header
+from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from backend.app.rag_utils import search_pinecone
+from backend.app.rag_utils import search_pinecone_stream
 from dotenv import load_dotenv
-import asyncio
 import os
+import asyncio
 
 load_dotenv()
 app = FastAPI()
@@ -16,6 +17,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 class QueryRequest(BaseModel):
     user_query: str
 
@@ -30,22 +32,24 @@ async def recommend(request: QueryRequest, x_api_key: str = Header(None)):
             status_code=401,
             detail="Unauthorized access. A valid API key is required."
         )
-
     try:
-        result = await asyncio.wait_for(
-            asyncio.to_thread(search_pinecone, request.user_query),
-            timeout=60
-        )
-        return result
+        async def timeout_wrapper():
+            gen = search_pinecone_stream(request.user_query)
+            try:
+                async for chunk in asyncio.wait_for(gen, timeout=60):
+                    yield chunk
+            except asyncio.TimeoutError:
+                raise HTTPException(
+                    status_code=504,
+                    detail="Sorry, request timed out after 60 seconds."
+                )
 
-    except asyncio.TimeoutError:
-        raise HTTPException(
-            status_code=504,
-            detail="Sorry, the request timed out. Please try again."
+        return StreamingResponse(
+            timeout_wrapper(),
+            media_type="text/plain"
         )
-
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail="Sorry, something went wrong while processing your query."
+            detail=f"Sorry, something went wrong while processing your query."
         )
