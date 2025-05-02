@@ -75,10 +75,10 @@ const ThreadWelcome: FC = () => {
         <div className="flex w-full flex-grow flex-col items-center justify-center text-center px-4 py-10">
           <h1 className="text-3xl font-bold sm:text-3xl">Welcome to NextFlix 🎬</h1>
           <p className="mt-3 text-base sm:text-lg text-muted-foreground max-w-xl">
-            Get personalized recommendations for movies, TV shows, and anime.
+            Get personalized recommendations for movies, TV shows, and anime
           </p>
           <p className="mt-2 text-sm text-muted-foreground max-w-sm">
-            Built with Llama 3 and Pinecone for semantic search.
+            Built with Llama 3 and Pinecone for semantic search
           </p>
           <p className="mt-2 text-sm text-muted-foreground max-w-sm">
             Learn more on {" "}
