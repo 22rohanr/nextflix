@@ -12,7 +12,7 @@ NextFlix is a fullstack AI-powered recommendation system for movies, TV shows, a
 - 🧠 **Query Refinement** with Llama 3 to understand user intent
 - 🤖 **LLM Ranking + Response Generation** also with Llama 3 for clean text output
 - 📦 Built with **FastAPI** and **deployed on Render**
-- 🔍 Supports filters for anime, type (`movie` / `tv`), genre, and more
+- 🔍 Supports filters for anime, type (`movie` / `tv`), plot, genre, director, actors, music composer, and more
 
 ---
 
