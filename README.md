@@ -1,4 +1,4 @@
-# 🎬 NextFlix — AI-Powered Media Recommender
+# NextFlix — AI-Powered Media Recommender
 
 NextFlix is a fullstack AI-powered recommendation system for movies, TV shows, and anime. It uses semantic search via Pinecone and a Retrieval-Augmented Generation (RAG) pipeline with Llama 3 (via Groq) to return high-quality, natural language recommendations based on user prompts.
 
@@ -6,17 +6,17 @@ NextFlix is a fullstack AI-powered recommendation system for movies, TV shows, a
 
 ---
 
-## 🚀 Features
+## Features
 
-- 🔎 **Semantic Search** over 10,000+ entries using vector embeddings on Pinecone
-- 🧠 **Query Refinement** with Llama 3 to understand user intent
-- 🤖 **LLM Ranking + Response Generation** also with Llama 3 for clean text output
-- 📦 Built with **FastAPI** and **deployed on Render**
-- 🔍 Supports filters for anime, type (`movie` / `tv`), plot, genre, director, actors, music composer, and more
+- **Semantic Search** over 10,000+ entries using vector embeddings on Pinecone
+- **Query Refinement** with Llama 3 to understand user intent
+- **LLM Ranking + Response Generation** also with Llama 3 for clean text output
+- Built with **FastAPI** and **deployed on Render**
+- Supports filters for anime, type (`movie` / `tv`), plot, genre, director, actors, music composer, and more
 
 ---
 
-## 💡 How It Works
+## How It Works
 
 1. **User inputs a natural language query** (e.g., "Give me 10 anime series about another world")
 2. A **Groq-hosted Llama 3 model** rewrites it into a structured semantic search prompt
@@ -25,7 +25,7 @@ NextFlix is a fullstack AI-powered recommendation system for movies, TV shows, a
 
 ---
 
-## 🛠️ How It Was Built
+## How It Was Built
 
 - **Backend:**  
   Built with **FastAPI**, the backend exposes a single endpoint that processes user prompts.  
