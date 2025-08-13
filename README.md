@@ -2,7 +2,7 @@
 
 NextFlix is a fullstack AI-powered recommendation system for movies, TV shows, and anime. It uses semantic search via Pinecone and a Retrieval-Augmented Generation (RAG) pipeline with Llama 3 (via Groq) to return high-quality, natural language recommendations based on user prompts.
 
-🌐 **Live Demo:** [nextflix.rohanrashingkar.com](https://nextflix.rohanrashingkar.com)
+**Live Demo:** [nextflix.rohanrashingkar.com](https://nextflix.rohanrashingkar.com)
 
 ---
 
